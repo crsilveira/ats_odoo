@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="ats_account_analytic_account_form_">
+            <field name="name">ats_account_contract</field>
+            <field name="model">account.analytic.account</field>
+            <field name="inherit_id" ref="account_analytic_analysis.account_analytic_account_form_form"/>
+            <field name="arch" type="xml">
+				<field name="recurring_invoice_line_ids" position="after">
+                    <separator string="Tarefas Recorrentes" attrs="{'invisible': [('recurring_task','!=',True)]}"/>
+                    <div>
+                        <div attrs="{'invisible': [('type','!=', 'contract'), ('recurring_task', '=', False)]}">
+                            <field name="recurring_task" on_change="onchange_recurring_tasks(recurring_task, date_start)" class="oe_inline" />
+                            <label for="recurring_task" />
+                        </div>
+                        <button class="oe_link" name="recurring_create_task" attrs="{'invisible': [('recurring_task','!=',True)]}" string="⇒ criar tarefa" type="object" groups="base.group_no_one"/>
+                    </div>
+                    <group attrs="{'invisible': [('recurring_task','!=',True)]}">
+                        <label for="recurring_task_interval"/>
+                        <div>
+                            <field name="recurring_task_interval" class="oe_inline" attrs="{'required': [('recurring_task', '=', True)]}"/>
+                            <field name="recurring_task_rule_type" class="oe_inline" attrs="{'required': [('recurring_task', '=', True)]}"/>
+                        </div>
+                        <field name="recurring_task_next_date"/>
+                    </group>
+                    <label for="recurring_task_line_ids" attrs="{'invisible': [('recurring_task','=',False)]}"/>
+                    <div attrs="{'invisible': [('recurring_task','=',False)]}">
+                        <field name="recurring_task_line_ids">
+                            <tree string="Tarefas" editable="bottom">
+                                <field name="project_id"/>
+                                <field name="name"/>
+                            </tree>
+                        </field>
+                    </div>
+                </field>
+            </field>
+		</record>
+
+    </data>
+</openerp>

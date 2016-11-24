@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+		<record id="view_seguranca_partner_tree" model="ir.ui.view">
+			<field name="name">seguranca.partner.filter</field>
+			<field name="model">res.partner</field>
+			<field name="inherit_id" ref="base.view_res_partner_filter" />
+			<field name="arch" type="xml">
+				<field name="name" position="replace">
+                   <field name="name"
+                       filter_domain="['|','|','|','|','|',('name','ilike',self),('display_name','ilike',self),('ref','=',self),('email','ilike',self),('legal_name','ilike',self),('street','ilike',self)]"/>
+				</field>
+			</field>
+		</record>
+
+	    <record id="view_client_form" model="ir.ui.view">
+	        <field name="name">l10n_br_base.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="l10n_br_base.view_l10n_br_base_partner_form" />
+	        <field name="arch" type="xml">
+				<field name="company_id" position="replace">
+				</field>	
+                <field name="website" position="after">
+                    <field name="company_id" />
+				</field>
+             </field>
+         </record>
+
+    </data>
+</openerp>
