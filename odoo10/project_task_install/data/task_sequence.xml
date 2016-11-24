@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="sequence_task_install" model="ir.sequence">
+        <field name="name">Task install code</field>
+        <field name="code">project.task.install</field>
+        <field eval="4" name="padding" />
+        <field name="prefix">I-</field>
+    </record>
+
+</odoo>

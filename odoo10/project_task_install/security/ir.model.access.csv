@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_task_install_user,task_install_user,project_task_install.model_project_task_install,group_task_install_user,1,1,1,0
+access_task_install_manager,task_install_manager,project_task_install.model_project_task_install,group_task_install_manager,1,1,1,1
+access_project_task_install_aux,project.task.install.aux,model_project_task_install_aux,project.group_delegate_task,1,1,1,1
