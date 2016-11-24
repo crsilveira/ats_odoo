@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record model="ir.ui.view" id="view_task_work_form2_inherited">
+        <field name="name">project.task.work.form.inherited</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2" />
+        <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
+        <field name="arch" type="xml">
+            <field name="unit_amount" position="before">
+                <field name="hours_in" string="Entrada" widget="float_time"/>
+                <field name="hours_out" string="Saida" widget="float_time"/>
+            </field>
+        </field>
+    </record>
+</odoo>
