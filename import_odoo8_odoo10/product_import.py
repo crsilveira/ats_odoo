@@ -86,10 +86,10 @@ if 'product.product' in od1.env:
         pc2_ids = pc2.search([('name','=',p.categ_id.name)])
         for cat in pc2.browse(pc2_ids):
             pp2['categ.id'] = cat.id
-        """
         pp2['fiscal_type'] = p.fiscal_type
         pp2['uom_id'] = p.uom_id.id
-        pp2['grupo'] = p.grupo
+        #if p.grupo:
+        #    pp2['grupo'] = p.grupo
         pp2[''] = p.uom_po_id
         pp2[''] = p.
         pp2[''] = p.
