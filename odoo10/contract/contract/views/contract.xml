@@ -22,6 +22,9 @@
                 <field name="use_tasks"/>
                 <label for="use_tasks"/>
             </field>
+            <field name="partner_id" position="after">
+                <field name="manager_id" />
+            </field>
             <group name="main" position="after">
                 <separator string="Recurring Invoices" attrs="{'invisible': [('recurring_invoices','!=',True)]}"/>
                 <div>

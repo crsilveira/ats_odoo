@@ -265,3 +265,23 @@ msgstr ""
 #: model:ir.ui.view,arch_db:contract.account_analytic_account_recurring_form_form
 msgid "⇒ Show recurring invoices"
 msgstr "⇒ Mostrar faturas recorrentes"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_account_analytic_account_manager_id
+msgid "Salesparson"
+msgstr "Gerente"
+
+#. module: contract
+#: model:ir.model.fields,field_description:contract.field_account_analytic_account_recurring_invoicing_type
+msgid "Invoicing type"
+msgstr "Tipo Fatura"
+
+#. module: contract
+#: selection:account.analytic.account,recurring_invoicing_type:0
+msgid "Pre-paid"
+msgstr "Pré Pago"
+
+#. module: contract
+#: selection:account.analytic.account,recurring_invoicing_type:0
+msgid "Post-paid"
+msgstr "Pós Pago"

@@ -37,6 +37,8 @@ class AccountAnalyticInvoiceLine(models.Model):
         digits=dp.get_precision('Discount'),
         help='Discount that is applied in generated invoices.'
              ' It should be less or equal to 100')
+    date_start = fields.Datetime('Data inicio', required=False)
+    date_stop = fields.Datetime('Data Fim', required=False)
 
     @api.multi
     @api.depends('quantity', 'price_unit', 'discount')
@@ -144,12 +146,16 @@ class AccountAnalyticAccount(models.Model):
         string='Journal',
         default=_default_journal,
         domain="[('type', '=', 'sale'),('company_id', '=', company_id)]")
+    manager_id = fields.Many2one(
+        'res.users',
+        string='Salesperson',
+        index=True,
+        track_visibility='onchange')
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         self.pricelist_id = self.partner_id.property_product_pricelist.id
-        if not self.name:
-            self.name = self.partner_id.name
+        self.manager_id = serlf.partner_id.user_id.id
 
     @api.onchange('recurring_invoices')
     def _onchange_recurring_invoices(self):
@@ -157,7 +163,7 @@ class AccountAnalyticAccount(models.Model):
             self.recurring_next_date = self.date_start
 
     @api.model
-    def get_relalive_delta(self, recurring_rule_type, interval):
+    def get_relative_delta(self, recurring_rule_type, interval):
         if recurring_rule_type == 'daily':
             return relativedelta(days=interval)
         elif recurring_rule_type == 'weekly':
@@ -177,7 +183,7 @@ class AccountAnalyticAccount(models.Model):
             date_to = next_date - relativedelta(days=1)
         else:
             date_from = (date_start -
-                         self.get_relalive_delta(contract.recurring_rule_type,
+                         self.get_relative_delta(contract.recurring_rule_type,
                                                  contract.recurring_interval) +
                          relativedelta(days=1))
             date_to = date_start
@@ -251,7 +257,8 @@ class AccountAnalyticAccount(models.Model):
         })
         # Get other invoice values from partner onchange
         invoice._onchange_partner_id()
-        return invoice._convert_to_write(invoice._cache)
+        return invoice._convert_to_write(
+            {name: invoice[name] for name in invoice._cache})
 
     @api.multi
     def _create_invoice(self):
@@ -269,7 +276,7 @@ class AccountAnalyticAccount(models.Model):
         for contract in self:
             old_date = fields.Date.from_string(
                 contract.recurring_next_date or fields.Date.today())
-            new_date = old_date + self.get_relalive_delta(
+            new_date = old_date + self.get_relative_delta(
                 contract.recurring_rule_type, contract.recurring_interval)
             ctx = self.env.context.copy()
             ctx.update({
@@ -288,6 +295,6 @@ class AccountAnalyticAccount(models.Model):
     @api.model
     def cron_recurring_create_invoice(self):
         contracts = self.search(
-            [('recurring_next_date', '<=', fields.date.today()),o
+            [('recurring_next_date', '<=', fields.date.today()),
              ('recurring_invoices', '=', True)])
         return contracts.recurring_create_invoice()
