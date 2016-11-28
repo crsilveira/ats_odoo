@@ -1,11 +1,15 @@
+ # -*- coding: utf-8 -*-
+
 import odoorpc
 
 # Odoo Origem
-od1 = odoorpc.ODOO('localhost', port=9069)
+#od1 = odoorpc.ODOO('localhost', port=9069)
+
 # Check available databases
 print(od1.db.list())
 # Login
-od1.login('16_myplace4', 'admin', 'a2t00s7')
+#od1.login('db', 'admin', '123')
+
 
 # Odoo Destino
 od2 = odoorpc.ODOO('localhost', port=8069)
@@ -19,46 +23,79 @@ user = od2.env.user
 print(user.name)            # name of the user connected
 print(user.company_id.name) # the name of its company
 
-P2 = od2.env['res.partner']
-odoo_cliente = odoo.env['res.partner']
-odoo_city = odoo.env['l10n_br_base.city']
-odoo_pagto = odoo.env['account.payment.term']
-odoo_localpagto = odoo.env['payment.mode']
+u2 = od2.env['res.users']
+u1 = od1.env['res.users']
+conta = 0
+if 'res.users' in od1.env:
+    uc2 = {}
+    uc1_ids = u1.search([])
+    for uc1 in u1.browse(uc1_ids):
+        uc2_ids = u2.search([('name', '=', uc1.name)])
+        if uc2_ids:
+           continue
+        conta += 1
+        print uc1.name
+        uc2['name'] = uc1.name
+        uc2['login'] = uc1.login
+        u2.create(uc2)
 
+
+p2 = od2.env['res.partner']
+p1 = od1.env['res.partner']
+conta = 0
 if 'res.partner' in od1.env:
-   pc2 = {}
-    cli_odoo['company_id'] = 3
-    cli_odoo['ref'] = str(row[0])
-    cli_odoo['name'] = cliente
-    cli_odoo['titular'] = True
-    cli_odoo['grupo'] = row[4]
-    cli_odoo['inscricao'] = row[5]
-    cli_odoo['comment'] = obs
-    cli_odoo['street'] = endereco
-    cli_odoo['street2'] = complemento
-    cli_odoo['zip'] = str(row[13])
-    cli_odoo['l10n_br_city_id'] = city.id
-    cli_odoo['state_id'] = city.state_id.id
-    cli_odoo['district'] = str(bairr)
-    cli_odoo['phone'] = str(fone)
-    cli_odoo['mobile'] = str(row[17])
-    cli_odoo['naturalidade'] = str(row[20])
-    cli_odoo['property_payment_term'] = pagto
-    cli_odoo['customer_payment_mode'] = localpagto
-    cli_odoo['property_account_position'] = 1
-# Simple 'raw' query
-#user_data = od2.execute('res.users', 'read', [user.id])
-#print(user_data)
+    pc1_ids = p1.search([])
+    for pc1 in p1.browse(pc1_ids):
+        pc2_ids = p2.search([('name', '=', pc1.name)])
+        if pc2_ids:
+           continue
+        pc2 = {}
+        conta += 1
+        print pc1.name
+        #pc2['company_id'] =
+        tipo_emp = 'person'
+        if pc1.is_company:
+           tipo_emp = 'company'
+        pc2['company_type'] = tipo_emp
+        pc2['ref'] = pc1.ref
+        pc2['name'] = pc1.name
+        if pc1.comment:
+            pc2['comment'] = pc1.comment
+        pc2['street'] = pc1.street
+        if pc1.street2:
+            pc2['street2'] = pc1.street2
+        pc2['zip'] = pc1.zip
+        if pc1.l10n_br_city_id:
+            city = od2.env['res.state.city']
+            city_ids = city.search([('ibge_code', '=', pc1.l10n_br_city_id.ibge_code)])
+            for cty in city.browse(city_ids):
+                pc2['city_id'] = cty.id
+                pc2['state_id'] = cty.state_id.id
+                pc2['country_id'] = cty.state_id.country_id.id
+        if pc1.district:
+            pc2['district'] = pc1.district
+        if pc1.phone:
+            pc2['phone'] = pc1.phone
+        if pc1.mobile:
+            pc2['mobile'] = pc1.mobile
+        #pc2['property_payment_term'] = pc1.property_payment_term
+        ##cli_odoo['customer_payment_mode'] = localpagto
+        #cli_odoo['property_account_position'] = 1
+        if pc1.user_id:
+            user = od2.env['res.users']
+            user_ids = user.search([('name', '=', pc1.name)])
+            for usr in user.browse(user_ids):
+                pc2['user_id'] = usr.id
+        pc2['customer'] = pc1.customer
+        pc2['supplier'] = pc1.supplier
+        if pc1.inscr_est:
+            pc2['inscr_est'] = pc1.inscr_est
+        if pc1.cnpj_cpf:
+            pc2['cnpj_cpf'] = pc1.cnpj_cpf
+        if pc1.email:
+            pc2['email'] = pc1.email
+        pc2['number'] = pc1.number
+        pc2['legal_name'] = pc1.legal_name
+        p2.create(pc2)
 
-# Use all methods of a model
-"""
-if 'sale.order' in od1.env:
-    Order = od1.env['sale.order']
-    order_ids = Order.search([])
-    for order in Order.browse(order_ids):
-        print(order.name)
-        products = [line.product_id.name for line in order.order_line]
-        print(products)
-"""
-# Update data through a record
-#user.name = "Brian Jones"
+print 'Total de Contratos : %s' %(str(conta))
