@@ -155,7 +155,7 @@ class AccountAnalyticAccount(models.Model):
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         self.pricelist_id = self.partner_id.property_product_pricelist.id
-        self.manager_id = serlf.partner_id.user_id.id
+        self.manager_id = self.partner_id.user_id.id
 
     @api.onchange('recurring_invoices')
     def _onchange_recurring_invoices(self):

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<odoo>
+
+  <record model="ir.ui.view" id="product_template_only_form_view">
+    <field name="name">product_template_form_view</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+      <field name="list_price" position="after">
+        <field name="contract_id" readonly="1"/>
+        <field name="mobile" />
+      </field>
+    </field>
+  </record>
+
+
+  <record id="product__tel_search_form_view" model="ir.ui.view">
+    <field name="name">product.template.search</field>
+    <field name="model">product.template</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="product.product_template_search_view"/>
+    <field name="arch" type="xml">
+      <filter name="filter_to_sell" position="replace">
+        <filter string="Can be Sold" name="filter_to_sell" icon="terp-accessories-archiver-minus" domain="[('sale_ok','=',1),('contract_id','=',False)]"/>
+      </filter>
+    </field>
+  </record>
+
+</odoo>
