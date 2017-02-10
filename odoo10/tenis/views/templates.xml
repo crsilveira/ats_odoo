@@ -1,0 +1,50 @@
+<odoo>
+    <data>
+        <template id="index">
+            <t t-call="website.layout">
+                <t t-set="title">Ranking Tenis</t>
+                <div class="oe_structure">
+                    <div class="container">
+                        <table  border="1" style="width:40%;">
+                            <caption>Desafios</caption>
+                            <tr>
+                                <th>Jogo</th>
+                                <th>Data Desafio</th>
+                                <th>Data Agendamento</th>
+                            </tr>
+                            <t t-foreach="ranking" t-as="rkg">
+                                <tr>
+                                    <td><t t-esc="rkg.name"/></td>
+                                    <td><t t-esc="rkg.data_desafio"/></td>
+                                    <td><t t-esc="rkg.data_agendado"/></td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+        <template id="rkg">
+            <t t-call="website.layout">
+                <t t-set="title">Ranking</t>
+                <div class="oe_structure">
+                    <div class="container">
+                        <table  border="2" style="width:40%;">
+                            <caption>Ranking</caption>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Jogador</th>
+                            </tr>
+                            <t t-foreach="ranqueamento" t-as="rkg">
+                                <tr>
+                                    <td><t t-esc="rkg.rk"/></td>
+                                    <td><t t-esc="rkg.jogador_id.name"/></td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

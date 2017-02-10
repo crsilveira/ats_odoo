@@ -1,0 +1,134 @@
+<odoo>
+
+    <!-- explicit list view definition -->
+    <record model="ir.ui.view" id="lista_rankg_view_tree">
+        <field name="name">Ranqueamento</field>
+        <field name="model">tenis.ranqueamento</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="jogador_id"/>
+                <field name="rk"/>
+                <field name="rk_anterior"/>
+                <field name="jogou_mes"/>
+                <field name="ganhou_ultimo"/>
+                <field name="perdeu_ultimo"/>
+                <field name="tem_desafio"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id='ranqueamento_view_form' model='ir.ui.view'>
+        <field name="name">Ranking Form</field>
+        <field name="model">tenis.ranqueamento</field>
+        <field name="arch" type="xml">
+            <form string="Model">
+                <group>
+                    <field name="jogador_id"/>
+                </group>
+                <group>
+                    <group>
+                        <field name="rk"/>
+                        <field name="rk_anterior"/>
+                        <field name="jogou_mes"/>
+                    </group>
+                    <group>
+                        <field name="ganhou_ultimo"/>
+                        <field name="perdeu_ultimo"/>
+                        <field name="tem_desafio"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+
+    <record id='ranking_view_form' model='ir.ui.view'>
+        <field name="name">Ranking Jogos Form</field>
+        <field name="model">tenis.ranking</field>
+        <field name="arch" type="xml">
+            <form string="Model">
+                <div>
+                    <label for="name"/> :
+                    <field name="desafiante_id"/> x <field name="desafiado_id"/>
+                </div>
+                <field name="name"/>
+                <group>
+                    <field name="data_desafio"/>
+                    <field name="data_agendado"/>
+                    <field name="jogo_data"/>
+                </group>
+
+                <group>
+                    <div>
+                        Primeiro Set: <field name="set1_dfte"/> x <field name="set1_dfdo"/>
+                        Segundo Set: <field name="set2_dfte"/> x <field name="set2_dfdo"/>
+                        Tie Break: <field name="set3_dfte"/> x <field name="set3_dfdo"/>
+                    </div>
+                </group>
+                <field name="placar" readonly="1"/>
+            </form>
+        </field>
+    </record>
+
+    <!-- explicit list view definition -->
+    <record model="ir.ui.view" id="ranking_view_tree">
+      <field name="name">Tenis list</field>
+      <field name="model">tenis.ranking</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="desafiante_id"/>
+          <field name="desafiado_id"/>
+          <field name="data_desafio"/>
+          <field name="data_agendado"/>
+          <field name="jogo_data"/>
+          <field name="placar"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- actions opening views on models -->
+    <record model="ir.actions.act_window" id="ranqueamento_act">
+      <field name="name">Ranking</field>
+      <field name="res_model">tenis.ranqueamento</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- actions opening views on models -->
+    <record model="ir.actions.act_window" id="ranking_act">
+      <field name="name">Ranking Floresta</field>
+      <field name="res_model">tenis.ranking</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- server action to the one above -->
+    <record model="ir.actions.server" id="ranking_act_server">
+      <field name="name">Tenis server</field>
+      <field name="model_id" ref="model_tenis_ranking"/>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+
+
+    <!-- Top menu item -->
+    <menuitem name="Tenis Ranking" id="menu_root"/>
+
+    <!-- menu categories -->
+
+    <menuitem name="Menu 1" id="ranking_menu1" parent="menu_root"/>
+    <menuitem name="Menu 2" id="ranking_menu2" parent="menu_root"/>
+
+    <!-- actions -->
+    <menuitem name="Ranking" id="ranqueamento_menu_list" parent="ranking_menu1"
+              action="ranqueamento_act"/>
+    <menuitem name="Jogos Ranking" id="ranking_menu_list" parent="ranking_menu1"
+              action="ranking_act"/>
+    <menuitem name="Server to list" id="ranking_menu_server" parent="ranking_menu2"
+              action="ranking_act_server"/>
+
+</odoo>

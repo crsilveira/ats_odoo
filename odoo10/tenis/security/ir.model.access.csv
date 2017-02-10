@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tenis_ranking,access_tenis_ranking,model_tenis_ranking,,1,0,0,0
+access_tenis_ranqueamento,access_tenis_ranqueamento,model_tenis_ranqueamento,,1,0,0,0
