@@ -1,0 +1,8 @@
+{"field": "tipo_registro", "length": "2", "type": "int", "decimals":  "0"}
+{"field": "controle_sequencial", "length": "12", "type": "int", "decimals":  "0"}
+{"field": "identificador_conta", "length": "25", "type": "str", "decimals": "0"}
+{"field": "data_emissao", "length": "8", "type": "int", "decimals":  "0"}
+{"field": "mes_referencia", "length": "6", "type": "int", "decimals":  "0"}
+{"field": "data_geracao_arquivo", "length": "8", "type": "int", "decimals":  "0"}
+{"field": "data_vencimento", "length": "8", "type": "int", "decimals":  "0"}
+{"field": "resto", "length": "281", "type": "str", "decimals":  "0"}

@@ -13,13 +13,10 @@
     'depends': [
         'base', 'analytic',
     ],
-    'init_xml': [],
-    'demo_xml': [
-    ],
-
     'data':  [
         'views/import_product_contract_view.xml',
         'views/import_linha_aparelho_view.xml',
+        'views/import_conta_view.xml',
         #'security/security_groups.xml',
         #'security/ir.model.access.csv',
     ],
@@ -27,4 +24,4 @@
     'images': [],
 
 }
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+
