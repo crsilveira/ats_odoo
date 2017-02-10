@@ -16,6 +16,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/contract_cron.xml',
+        'data/contract_sequence.xml',
         'views/contract.xml',
         'views/account_invoice_view.xml',
     ],

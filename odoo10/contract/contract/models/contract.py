@@ -96,6 +96,11 @@ class AccountAnalyticInvoiceLine(models.Model):
 class AccountAnalyticAccount(models.Model):
     _inherit = 'account.analytic.account'
 
+    _sql_constraints = [
+        ('contract_unique_code', 'UNIQUE (code)',
+        'O Código do Contrato precisa ser único!')
+    ]
+
     @api.model
     def _default_journal(self):
         company_id = self.env.context.get(
@@ -151,6 +156,12 @@ class AccountAnalyticAccount(models.Model):
         string='Salesperson',
         index=True,
         track_visibility='onchange')
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('code'):
+            vals['code'] = self.env['ir.sequence'].get('contract.sequence.code')
+        return super(AccountAnalyticAccount, self).create(vals)
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -257,8 +268,7 @@ class AccountAnalyticAccount(models.Model):
         })
         # Get other invoice values from partner onchange
         invoice._onchange_partner_id()
-        return invoice._convert_to_write(
-            {name: invoice[name] for name in invoice._cache})
+        return invoice._convert_to_write(invoice._cache)
 
     @api.multi
     def _create_invoice(self):
@@ -297,4 +307,6 @@ class AccountAnalyticAccount(models.Model):
         contracts = self.search(
             [('recurring_next_date', '<=', fields.date.today()),
              ('recurring_invoices', '=', True)])
-        return contracts.recurring_create_invoice()
+        for ctr in contracts:
+            ctr.recurring_create_invoice()
+        return True
