@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record model="ir.ui.view" id="sale_view_weight_inherit">
+        <field name="name">sale.order.weight.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="order_line" position="after">
+                <group>
+                    <field name="amount_weight" />
+                </group>
+            </field>
+
+        </field>
+    </record>
+
+</odoo>
