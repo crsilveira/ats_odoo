@@ -32,7 +32,7 @@ class SaleOrder(models.Model):
     """
 
     @api.multi
-    @api.depends('service_total','order_line_serv.price_unit', 'order_line_serv.product_uom_qty')
+    @api.depends('order_line_serv.price_unit', 'order_line_serv.product_uom_qty')
     def _compute_service_total(self):
         total = 0.0
         for order in self:
@@ -73,7 +73,7 @@ class SaleOrderLineServ(models.Model):
 
         return {'domain': domain}
 
-    order_serv_id = fields.Many2one('sale.order', 'Order Reference', required=True, ondelete='cascade', select=True, readonly=True)
+    order_serv_id = fields.Many2one('sale.order', 'Order Reference', required=True, ondelete='cascade', index=True, readonly=True)
     product_id = fields.Many2one('product.product', u'Serviço', domain=[('sale_ok', '=', True)], change_default=True, ondelete='restrict')
     price_unit = fields.Float(u'Preço', required=True, digits= dp.get_precision('Product Price'))
     product_uom_qty = fields.Float('Quantity', digits= dp.get_precision('Product UoS'), required=True)

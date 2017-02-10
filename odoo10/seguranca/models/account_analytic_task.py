@@ -1,52 +1,31 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    OpenERP, Open Source Management Solution
-#    Copyright (C) 2004-2010 Tiny SPRL (<http://tiny.be>).
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
-from openerp.osv import osv, fields
-import time
+# © 2016 Carlos Silveira <crsilveira@gmail.com>, ATS
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+from odoo import fields, models
 
-class account_analytic_task_line(osv.osv):
-    _name = "account.analytic.task.line"
+class AccountAnalyticTaskLine(models.Model):
+    _name = 'account.analytic.task.line'
 
-    _columns = {
-        'analytic_task_id': fields.many2one('account.analytic.account', 'Analytic Account'),
-        'name': fields.char(u'Descrição da Tarefa', size=128, required=True, select=True),
-        'project_id': fields.many2one('project.project', 'Projeto', ondelete='set null', select=True),
-    }
+    analytic_task_id = fields.Many2one('account.analytic.account', 'Analytic Account')
+    name = fields.Char(u'Descrição da Tarefa', size=128, required=True, index=True)
+    project_id = fields.Many2one('project.project', 'Projeto', ondelete='set null', index=True)
 
 
-class account_analytic_account(osv.osv):
-    _name = "account.analytic.account"
-    _inherit = "account.analytic.account"
+class AccountAnalyticAccount(models.Model):
+    _inherit = 'account.analytic.account'
 
-    _columns = {
-        'recurring_task_line_ids': fields.one2many('account.analytic.task.line', 'analytic_task_id', 'Linha de Tarefas', copy=True),
-        'recurring_task' : fields.boolean('Gerar tarefas recorrentes automaticamente'),
-        'recurring_task_rule_type': fields.selection([
+    recurring_task_line_ids = fields.One2many('account.analytic.task.line', 'analytic_task_id', 'Linha de Tarefas', copy=True)
+    recurring_task = fields.Boolean('Gerar tarefas recorrentes automaticamente')
+    recurring_task_rule_type = fields.Selection([
             ('daily', 'Dia(s)'),
             ('weekly', 'Semana(s)'),
             ('monthly', 'Mes(es)'),
             ('yearly', 'Ano(s)'),
-            ], 'Recorrencia', help="Cria tarefas automaticamente, em intervalos programados"),
-        'recurring_task_interval': fields.integer('Repetir cada', help="Repetir cada (Dia/Semana/Mes/Ano)"),
-        'recurring_task_next_date': fields.date('Data da proxima Tarefa'),
-    }
+            ], 'Recorrencia', help='Cria tarefas automaticamente, em intervalos programados')
+    recurring_task_interval = fields.Integer('Repetir cada', help="Repetir cada (Dia/Semana/Mes/Ano)")
+    recurring_task_next_date = fields.Date('Data da proxima Tarefa')
+
+    # Parei aqui a mudança para o odoo 10 25/11/16
     def onchange_recurring_tasks(self, cr, uid, ids, recurring_task, date_start=False, context=None):
         value = {}
         if date_start and recurring_task:
