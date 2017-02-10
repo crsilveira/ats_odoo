@@ -11,7 +11,7 @@ class AccountAnalyticAccount(models.Model):
             for x in vals.get('recurring_invoice_line_ids'):
                 if 'product_id' in x[2]:
                     prod = self.env['product.template'].browse([x[2].get('product_id')])
-                    prod.write({'contract_id': contract_id})
+                    prod.write({'contract_id': contract_id.id})
         return contract_id
 
     @api.multi
