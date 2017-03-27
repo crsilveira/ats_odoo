@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="event_view_form" model="ir.ui.view">
+        <field name="name">event.view.form</field>
+        <field name="model">event.event</field>
+        <field name="inherit_id" ref="event.view_event_form"/>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="name" position="after">
+                <field name="product_id" options='{"no_create": 1, "no_create_edit": 1}' domain="[('is_location','=',True)]"/>
+            </field>
+            <field name="date_end" position="after">
+                <field name="qty" readonly="1" />
+            </field>
+        </field>
+    </record>
+</odoo>
+
+
+<!-- domain="[('customer','=',True), ('parent_id','=',False)]" -->
