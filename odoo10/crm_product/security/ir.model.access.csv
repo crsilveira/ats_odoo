@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crm_sale_report_user,crm_product.sale.report,model_crm_product_sale_report,sales_team.group_sale_salesman,1,0,0,0
+access_crm_sale_report_manager,crm_product.sale.report,model_crm_product_sale_report,sales_team.group_sale_manager,1,1,1,1
+access_crm_product_productsite,access_crm_product_productsite,model_crm_productsite,sales_team.group_sale_salesman,1,1,1,1
+access_crm_product_lead,crm_product.crm_lead,model_crm_lead,sales_team.group_sale_salesman,1,1,1,1
