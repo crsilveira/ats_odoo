@@ -29,10 +29,10 @@
     """,
     'author': 'ATS Soluções',
     'website': '',
-    'depends': ['br_sale'],
+    'depends': ['br_base','br_sale'],
     'data': [
         #'account_analytic_analysis_view.xml',
-        #'res_partner_view.xml',
+        'views/res_partner_view.xml',
         'views/sale_view.xml',
     ],
     'installable': True,

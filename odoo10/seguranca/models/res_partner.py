@@ -12,6 +12,10 @@ from openerp import tools
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+    cod_internal = fields.Char(string="Sigma")
+    cod_service = fields.Char(string="Service")
+    zoneamento = fields.Html(string="Zoneamento")
+
     @api.one
     @api.constrains('inscr_est')
     def _check_ie_duplicated(self):

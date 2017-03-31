@@ -35,6 +35,7 @@ class SaleOrder(models.Model):
     @api.depends('order_line_serv.price_unit', 'order_line_serv.product_uom_qty')
     def _compute_service_total(self):
         total = 0.0
+
         for order in self:
             for line in order.order_line_serv:
                 total += line.price_unit*line.product_uom_qty
@@ -42,6 +43,7 @@ class SaleOrder(models.Model):
     
     order_line_serv = fields.One2many('sale.order.line.serv', 'order_serv_id', 'Order Lines', readonly=True, states={'draft': [('readonly',      False)], 'sent': [('readonly', False)]}, copy=True)
     service_total = fields.Float(compute='_compute_service_total', digits=dp.get_precision('Account'), readonly=True, store=True)
+    #service_total = fields.Float(string="Total Servicos")
 
 class SaleOrderLineServ(models.Model):
 
