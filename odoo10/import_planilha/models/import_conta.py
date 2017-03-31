@@ -151,9 +151,7 @@ class ImportConta(models.Model):
                 ))
                 self.vendas_ids.append(vnd_id)
             except:
-                msg_inc.append({'erro_inc': '%s-%s-%s' % (
-                    ctr_ids.analytic_account_id.partner_id.name,
-                    ctr_ids.analytic_account_id.code,
+                msg_inc.append({'erro_inc': '%s' % (
                     fone)})
             print "1-nao tem venda, inclui"
         #if len(msg_inc):
@@ -165,11 +163,11 @@ class ImportConta(models.Model):
         cnab240_file = tempfile.NamedTemporaryFile()
         cnab240_file.write(data_file)
         cnab240_file.flush()
-        #arquivo = Arquivo(claro, arquivo=open(, 'r'))
         script_dir = os.path.dirname(__file__)
         file_path = os.path.join(script_dir, 'resumo.json')
         ff = Fixed_files(file_path, dic=False, checklength=False)
         records = open(cnab240_file.name).readlines()
+        #records = open('/home/publico/clientes/result/dd11.txt').readlines()
         rec_in = []
         for record in records:
             # 10 RESUMO VALOR DAS LIGACOES E GASTOS SERVICOS
