@@ -4,111 +4,10 @@ import time
 
 from odoo.addons.br_boleto.boleto.document import Boleto
 
-class ContractReajuste(models.Model):
-    _name = "account.analytic.reajuste"
-
-    reajuste_id = fields.Many2one('account.analytic.account', 'Analytic Account')
-    product_id = fields.Many2one('product.product','Produto')
-    user_id = fields.Many2one('res.users','Usuário')
-    name = fields.Date(u'Data Reajuste')
-    valor_anterior = fields.Float(u'Valor Anterior')
-    indice = fields.Float(u'Indice aplicado')
-
-
 class AccountAnalyticAccount(models.Model):
     _inherit = 'account.analytic.account'
 
     email_fat = {}
-    """
-    def _v_total(self):
-        res = {}
-        return res
-
-    def _get_order(self):
-        result = {}
-        for line in self.env['account.analytic.invoice.line'].browse([self.id]):
-            result[line.order_id.id] = True
-        return result.keys()
-    """
-
-    def _total_contrato(self):
-        val = 0.0
-        res = dict([(i, {}) for i in ids])
-        for account in self:
-            val = account.recurring_invoice_line_ids.quantity * account.recurring_invoice_line_ids.price_unit
-            res[account.id]['valor_total'] = val
-        return res
-
-    valor_total = fields.Float('Valor Total')
-    reajuste_ids = fields.One2many('account.analytic.reajuste', 'reajuste_id', 'Historico reajuste', copy=False)
-    motivo_encerramento = fields.Selection([
-            ('1003', '1003-Problemas Financeiros'),
-            ('1004', '1004-Encerramento Atividades'),
-            ('1005', '1005-Mudou-se de endereço'),
-            ('1006', '1006-Foi pra concorrência melhor preço'),
-            ('1007', '1007-Foi pra concorrência descontentamento'),
-            ('1544', '1544-Problemas no orçamento'),
-            ('2009', '2009-Entrega do imovel'),
-            ('2010', '2010-Optou por ficar com o atendimento de uma única empresa'),
-            ('2012', '2012-Por não ter serviço específico'),
-            ('2411', '2411-Cancelado por Inadimplência'),
-            ('2641', '2641-Cadastro em duplicidade'),
-            ('2642', '2642-Falecimento'),
-            ], 'Motivo de Encerramento', help="Motivo pelo qual o contrato foi finalizado.")
-
-    @api.model
-    def create(self, vals):
-        if 'recurring_invoice_line_ids' in vals:
-            for x in vals.get('recurring_invoice_line_ids'):
-                p = 0.0
-                q = 0.0
-                if 'price_unit' in x[2]:
-                    p = x[2].get('price_unit')
-                if 'quantity' in x[2]:
-                    q = x[2].get('quantity')
-                vt = p * q
-                vals['valor_total'] = vt
-        contract_id = super(AccountAnalyticAccount,self).create(vals)
-        if 'recurring_invoice_line_ids' in vals:
-            for x in vals.get('recurring_invoice_line_ids'):
-                if 'product_id' in x[2]:
-                    #prod_ids = prod_obj.search(cr, uid, [('id','=',x[2].get('product_id'))],context=context)
-                    #for prod in prod_obj.browse(cr, uid, prod_ids, context=context):
-                    #    prod_obj.write(cr, uid, [prod.id], {'contract_id': contract_id}, context=context)
-                    prod = self.env['product.template'].browse([x[2].get('product_id').id])
-                    prod.write({'contract_id': contract_id})
-        return contract_id
-
-    @api.multi
-    def write(self, values):
-        for account in self:
-            if 'recurring_invoice_line_ids' in values:
-                val = 0.0
-                for x in vals.get('recurring_invoice_line_ids') :
-                    p = 0.0
-                    q = 0.0
-                    vt = 0.0
-                    if x[2] and 'price_unit' in x[2]:
-                        p = x[2].get('price_unit')
-                    if x[2] and 'quantity' in x[2]:
-                        q = x[2].get('quantity')
-                    if p > 0 and q > 0:
-                        vt = p * q
-                    elif p > 0:
-                        vt = p * account.recurring_invoice_line_ids.quantity
-                    elif q > 0:
-                        vt = q * account.recurring_invoice_line_ids.price_unit
-                    if vt > 0:
-                        val = vt
-                    if x[2] and 'product_id' in x[2]:
-                        prod = self.env['product.template'].browse([x[2].get('product_id').id])
-                        prod.write({'contract_id': account.id})
-                        #prod_obj = self.pool.get('product.template')
-                        #prod_ids = prod_obj.search(cr, uid, [('id','=',x[2].get('product_id'))],context=context)
-                        #for prod in prod_obj.browse(cr, uid, prod_ids, context=context):
-                        #    prod_obj.write(cr, uid, [prod.id], {'contract_id': account.id}, context=context)
-                values['valor_total'] = val
-        return super(AccountAnalyticAccount,self).write(values)
 
     def relatorio_contrato_erro(self):
         """
@@ -314,10 +213,15 @@ class AccountAnalyticAccount(models.Model):
     def _create_invoice(self):
         invoice_ids = []
         invoice_vals = self._prepare_invoice()
+        msg_erro = ''
         try:
+            msg_erro = 'Erro para criar pedido de venda.'
             invoice_ids.append(self.env['sale.order'].create(invoice_vals))
+            msg_erro = 'Erro para adicionar itens pedido de venda.'
             self._prepare_order_lines(self, invoice_ids[0])
+            msg_erro = 'Erro pra confirmar pedido de venda.'
             invoice_ids[0].action_confirm()
+            msg_erro = 'Erro para criar a Fatura.'
             inv_id = self.faturar_invoice()
             invoice = self.env['account.invoice'].browse(inv_id)
             if not invoice.payment_mode_id:
@@ -325,13 +229,17 @@ class AccountAnalyticAccount(models.Model):
                 if self.payment_mode_id:
                     pay['payment_mode_id'] = self.payment_mode_id.id
                     invoice.write(pay)
+            msg_erro = 'Erro para Confirmar a Fatura.'
             invoice.action_invoice_open()
-            self.criar_boleto(invoice.id, invoice.receivable_move_line_ids[0])
+            if invoice.payment_mode_id.boleto_type:
+                msg_erro = 'Erro para Gerar o Boleto.'
+                self.criar_boleto(invoice.id, invoice.receivable_move_line_ids[0])
+            msg_erro = ''
             self.relatorio_faturamento('SIM', self.id, self.code, self.partner_id.name, '',
                 'NAO', self.company_id.name)
-            return invoice
+            return invoice, msg_erro
         except Exception:
-            return False
+            return False, msg_erro
 
     @api.multi
     def recurring_create_invoice(self):
@@ -344,7 +252,6 @@ class AccountAnalyticAccount(models.Model):
             context['empresa'] = contract.company_id
             context['id_contrato'] = contract.id
             valido = self.validando_info(context)
-            """
             if len(valido):
                 email_line = {'faturado':'NAO',
                     'contrato': contract.code,
@@ -353,8 +260,9 @@ class AccountAnalyticAccount(models.Model):
                 }
                 email_dados = email_rel.setdefault(id,email_line)
                 email_dados.setdefault('NAO FATURADO', {})
+                contract.message_post(body=_(email_dados))
                 continue
-            """
+
             old_date = fields.Date.from_string(
                 contract.recurring_next_date or fields.Date.today())
             new_date = old_date + self.get_relative_delta(
@@ -367,11 +275,14 @@ class AccountAnalyticAccount(models.Model):
                 'force_company': contract.company_id.id,
             })
             # Re-read contract with correct company
-            if contract.with_context(ctx)._create_invoice():
+            inv, msg = contract.with_context(ctx)._create_invoice()
+            if inv:
                 contract.write({
                     'recurring_next_date': new_date.strftime('%Y-%m-%d')
                 })
             else:
+                msg = 'Erro no faturamento,  ' + msg
+                contract.message_post(body=_(msg))
                 self.relatorio_faturamento('NAO', contract.id, contract.code, contract.partner_id.name,
                    'Erro ao executar o faturamento.', 'NAO', contract.company_id.name)
         if len(email_rel):
@@ -385,21 +296,53 @@ class AccountAnalyticAccount(models.Model):
         return True
 
     @api.model
-    def cron_recurring_create_invoice(self):
+    def cron_recurring_create_invoice(self, company):
         contracts = self.search(
             [('recurring_next_date', '<=', fields.date.today()),
-             ('recurring_invoices', '=', True)])
+             ('recurring_invoices', '=', True),
+             ('company_id','=',company)])
         return contracts.recurring_create_invoice()
 
     def _prepare_order_lines(self, contract, order_id):
         invoice_lines = []
         for line in contract.recurring_invoice_line_ids:
-            invoice_lines = {
-                'order_id': order_id.id,
-                'name': line.name,
-                'price_unit': line.price_unit or 0.0,
-                'product_uom_qty': line.quantity,
-                'product_id': line.product_id.id or False,
-            }
-            self.env['sale.order.line'].create(invoice_lines)
+            invoice_lines = []
+            if line.date_start and line.date_stop:
+                if line.date_start <= self.recurring_next_date and line.date_stop > self.recurring_next_date:
+                    invoice_lines = {
+                        'order_id': order_id.id,
+                        'name': line.name,
+                        'price_unit': line.price_unit or 0.0,
+                        'product_uom_qty': line.quantity,
+                        'product_id': line.product_id.id or False,
+                    }
+            elif line.date_start and not line.date_stop:
+                if line.date_start <= self.recurring_next_date:
+                    invoice_lines = {
+                        'order_id': order_id.id,
+                        'name': line.name,
+                        'price_unit': line.price_unit or 0.0,
+                        'product_uom_qty': line.quantity,
+                        'product_id': line.product_id.id or False,
+                    }
+            elif not line.date_start and line.date_stop:
+                if line.date_stop > self.recurring_next_date:
+                    invoice_lines = {
+                        'order_id': order_id.id,
+                        'name': line.name,
+                        'price_unit': line.price_unit or 0.0,
+                        'product_uom_qty': line.quantity,
+                        'product_id': line.product_id.id or False,
+                    }
+            else:
+                invoice_lines = {
+                    'order_id': order_id.id,
+                    'name': line.name,
+                    'price_unit': line.price_unit or 0.0,
+                    'product_uom_qty': line.quantity,
+                    'product_id': line.product_id.id or False,
+                }
+
+            if len(invoice_lines):
+                self.env['sale.order.line'].create(invoice_lines)
         return invoice_lines

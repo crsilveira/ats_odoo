@@ -4,7 +4,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    'name': 'Contracts Automatic Billing',
+    'name': 'Billing',
     'version': '10.0.1.1.0',
     'category': 'Contract Management',
     'license': 'AGPL-3',
@@ -12,14 +12,12 @@
               "ATS,"
               "",
     'website': '',
-    'depends': ['contract','contract_invoice', 'br_boleto'],
+    'depends': ['contract','contract_invoice', 'br_boleto', 'br_account'],
     'data': [
-        #'security/ir.model.access.csv',
-        #'data/contract_cron.xml',
-        'views/contract_view.xml',
+        #'views/contract_view.xml',
         'views/email_erro_fatura.xml',
         'views/email_einvoice_template.xml',
-        #'views/account_invoice_view.xml',
+        'views/account_invoice.xml'
     ],
     'installable': True,
 }
