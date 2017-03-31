@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="contract_permission_view_form" model="ir.ui.view">
+        <field name="name">contract.permission.view.form</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="contract.account_analytic_account_recurring_form_form"/>
+        <field name="arch" type="xml">
+            <field name="date_start" position="after">
+                <field name="date_end" readonly="1"/>
+            </field>
+        </field>
+    </record>
+</odoo>
