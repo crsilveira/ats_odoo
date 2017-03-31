@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="boasvindas_email_template" model="mail.template">
+            <field name="name">Boas Vindas</field>
+            <field name="subject">Bem vindo</field>
+			<field name="email_to">${(object.user_id.partner_id.email)}</field>
+			<field name="email_from">${(object.email_from)}</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html"><![CDATA[
+
+				<p>
+					Ol&aacute;, seja bem vindo !
+</p>
+<p>
+  Gostar&iacute;amos de parabeniz&aacute;-lo por adquirir os servi&ccedil;os da My Place Office.
+</p>
+<br/>
+<p>
+  Aproveite ao m&aacute;ximo dos nossos servi&ccedil;os!
+</p>
+<p>
+Pedimos a gentileza de acrescentar os seguintes e-mail &agrave; sua caixa de e-mails:
+</p>
+<p>
+  <ul>
+    <li>correspond&ecirc;ncia@myplaceoffice.com.br</li>
+    <li>financeiro1@myplaceoffice.com.br</li>
+  </ul>
+</p>
+<p>
+Para qualquer informa&ccedil;&atilde;o, entre em contato conosco pelo telefone 011
+4890.2400, ou acesse pelo email: sac@myplaceoffice.com.br.
+</p>
+<pre>
+<p>
+Atenciosamente,
+</p>
+<p>
+</p>
+</pre>
+<table>
+     <tbody><tr>
+     <td>   <p> <img src="data:image/png;base64,${object.company_id.logo}" style="width: 150px;height: 80px;"> </p> </td>
+    <td>    <br>
+Financeiro - My Place Office <br>
+p:+55 11 4890-2400<br> e:financeiro1@myplaceoffice.com.br&nbsp;|&nbsp;w:http://www.myplaceoffice.com.br&nbsp;|&nbsp; <br>
+a: Av. Engenheiro Luiz Carlos Berrini - 1140 - 7&#186; Andar - Itaim Bibi </td>
+  </tr>
+</tbody></table>
+            ]]></field>
+        </record>
+    </data>
+</odoo>

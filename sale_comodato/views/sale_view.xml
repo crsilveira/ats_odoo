@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record model="ir.ui.view" id="sale_view_comodato_inherit">
+        <field name="name">sale.comodato.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+             <xpath expr="//field[@name='order_line']/form/group/group/div[@name='discount']" position="after">
+                <field name="comodato" />
+             </xpath>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="before">
+                <field name="comodato"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record model="ir.ui.view" id="account_invoice_view_comodato_inherit">
+        <field name="name">account.invoice.comodato.inherit</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="br_account.view_br_account_invoice_form"/>
+        <field name="arch" type="xml">
+            <field name="price_subtotal" position="before">
+                <field name="valor_comodato" />
+            </field>
+        </field>
+    </record>
+
+</odoo>
