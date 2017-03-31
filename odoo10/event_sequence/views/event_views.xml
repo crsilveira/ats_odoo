@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <!-- EVENT.EVENT VIEWS -->
+        <record model="ir.ui.view" id="view_event_curso_form">
+            <field name="name">event.event.curso.form</field>
+            <field name="model">event.event</field>
+            <field name="inherit_id" ref="event.view_event_form" />
+            <field name="arch" type="xml">
+                 <field name="name" position="before">
+                     <field name="default_code" />
+                 </field>
+                 <field name="organizer_id" position="after">
+                     <field name="descricao"/>
+                 </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>
