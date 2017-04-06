@@ -6,6 +6,12 @@
         <field name="model">account.analytic.account</field>
         <field name="inherit_id" ref="contract.account_analytic_account_recurring_form_form" />
         <field name="arch" type="xml">
+            <field name="partner_id" position="replace">
+            </field>
+            <xpath expr="//div[@class='oe_title']" position="before">
+                <label for="partner_id" />
+                <field name="partner_id" domain="[('parent_id', '=', False)]" />
+            </xpath>
             <xpath expr='//group[@name="main"]/group' position='inside'>
                 <field name="payment_term_id" />
             </xpath>
@@ -14,18 +20,25 @@
                 <field name="fiscal_position_id" />
                 <field name="amount_total"/>
             </field>
-        <field name="pricelist_id" position="replace">
-            <field name="pricelist_id" invisible="1"/>
-        </field>
-        <field name="recurring_invoicing_type" position="replace">
-            <field name="recurring_invoicing_type" invisible="1"/>
-        </field>
-        <field name="currency_id" position="replace">
-            <field name="currency_id" invisible="1"/>
-        </field>
-        <field name="partner_id" position="after">
-            <field name="invoice_partner_id" />
-        </field>
+            <field name="pricelist_id" position="replace">
+                <field name="pricelist_id" invisible="1"/>
+            </field>
+            <field name="recurring_invoicing_type" position="replace">
+                <field name="recurring_invoicing_type" invisible="1"/>
+            </field>
+            <field name="currency_id" position="replace">
+                <field name="currency_id" invisible="1"/>
+            </field>
+            <field name="partner_id" position="after">
+                <field name="invoice_partner_id" invisible="1" />
+            </field>
+			<field name="use_tasks" position="replace">
+                <field name="use_tasks" invisible="1" />
+                <label for="use_tasks" invisible="1" />
+            </field>
+			<label for="use_tasks" position="replace">
+                <label for="use_tasks" invisible="1" />
+            </label>
         </field>
     </record>
 

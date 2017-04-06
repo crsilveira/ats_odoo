@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
 from . import contract
-from . import partner
+# esta no payment_sale
+#from . import partner

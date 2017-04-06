@@ -1,42 +1,4 @@
 <?xml version="1.0"?>
 <odoo>
 
-    <record model="ir.ui.view" id="contract_billing_form_">
-        <field name="name">contract_billing_form</field>
-        <field name="model">account.analytic.account</field>
-        <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
-        <field name="arch" type="xml">
-            <field name="partner_id" position="after">
-                <field name="valor_total" string="Valor Total" readonly="1"/>
-                <field name="motivo_encerramento" string="Motivo Cancelamento"/>
-            </field>
-            <xpath expr='//form/sheet' position='inside'>
-                <notebook>
-                    <page string='Historico dos reajustes'>
-                        <field name="reajuste_ids">
-                            <tree string="Reajustes" editable="bottom">
-                                <field name="user_id"/>
-                                <field name="product_id"/>
-                                <field name="name"/>
-                                <field name="valor_anterior"/>
-                                <field name="indice"/>
-                            </tree>
-                        </field>
-                    </page>
-                </notebook>
-            </xpath>
-        </field>
-    </record>
-
-    <record id="contract_billing_list" model="ir.ui.view">
-        <field name="name">contract.billing.list</field>
-        <field name="model">account.analytic.account</field>
-        <field name="inherit_id" ref="analytic.view_account_analytic_account_list"/>
-        <field name="arch" type="xml">
-            <field name="partner_id" position="after">
-                <field name="valor_total" string="Valor Total"/>
-            </field>
-        </field>
-    </record>
-
 </odoo>

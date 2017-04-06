@@ -46,13 +46,14 @@ class EmailEinvoice(models.Model):
             self.pool.get('mail.mail').create(cr, uid, vals, context=context)
         return True
 
-    def cron_send_einvoice(self, data_vcto='05-04-2017', dia_vcto=0):
+    def cron_send_einvoice(self, dia_vcto=5):
         remind = {}
         invoice_obj = self.env['account.invoice']
-        if dia_vcto == 0:
-            dia_vencimento = data_vcto[6:10]+'-'+data_vcto[3:5]+'-'+data_vcto[:2]
-        else:
-            dia_vencimento = (datetime.now() + timedelta(dia_vcto)).strftime("%Y-%m-%d")
+        # envia errado se data ficar errada
+        #if dia_vcto == 0:
+        #    dia_vencimento = data_vcto[6:10]+'-'+data_vcto[3:5]+'-'+data_vcto[:2]
+        #else:
+        dia_vencimento = (datetime.now() + timedelta(dia_vcto)).strftime("%Y-%m-%d")
         #dia_vencimento = '2017-03-06'
         base_domain = [
             ('date_due', '=', dia_vencimento), 
@@ -68,6 +69,8 @@ class EmailEinvoice(models.Model):
             mail = False
 
         for inv in invoice_ids:
+            if not inv.partner_id.active:
+                continue
             attachment_ids = self.env['ir.attachment'].search([('res_model','=','account.invoice'),
                 ('res_id','=', inv.id )])
             atts_ids = []
@@ -147,16 +150,13 @@ class EmailEinvoice(models.Model):
         return True
 
     #def cron_lembrete_einvoice(self, dias_vencimento=13):
-    def cron_lembrete_einvoice(self, data_vcto='05-04-2017', dia_vcto=0):
+    def cron_lembrete_einvoice(self, dia_vcto=0):
         remind = {}
-        import pudb;pu.db
         invoice_obj = self.env['account.invoice']
-        if dia_vcto == 0:
-            dia_vencimento = data_vcto[6:10]+'-'+data_vcto[3:5]+'-'+data_vcto[:2]
-        elif dia_vcto == 0 and data_vcto == '01-01-2001':
-            dia_vencimento = (datetime.now() + timedelta(dia_vcto)).strftime("%Y-%m-%d")
-        else:
-            dia_vencimento = (datetime.now() + timedelta(dia_vcto)).strftime("%Y-%m-%d")
+        #    dia_vencimento = data_vcto[6:10]+'-'+data_vcto[3:5]+'-'+data_vcto[:2]
+        #elif dia_vcto == 0 and data_vcto == '01-01-2001':
+        # nao pode ser por data pois vai enviar vcto errado se estiver data
+        dia_vencimento = (datetime.now() + timedelta(dia_vcto)).strftime("%Y-%m-%d")
         base_domain = [('date_due', '=', dia_vencimento), ('state','=','open')]
         invoice_ids = invoice_obj.search(base_domain)
         try:

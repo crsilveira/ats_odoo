@@ -35,7 +35,8 @@
     'license': 'AGPL-3',
     'data': [
         'views/contract_view.xml',
-        'views/partner_view.xml',
+        # esta no payment_sale
+        #'views/partner_view.xml',
         #'security/ir.model.access.csv',
     ],
     'test': ['test/contract_payment_mode.yml'],

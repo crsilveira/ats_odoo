@@ -30,19 +30,19 @@ class AccountAnalyticAccount(models.Model):
 
     amount_total = fields.Float(compute='_amount_total', string="Valor total", digits=dp.get_precision('Product Price'), store=True)
 
-    @api.multi
-    def on_change_partner_id(self, partner_id, name):
-        res = super(AccountAnalyticAccount, self).on_change_partner_id(
-            partner_id,
-            name)
-        partner = self.env['res.partner'].browse(partner_id)
-        if partner and partner.customer_payment_mode:
-            res['value']['payment_mode_id'] = partner.customer_payment_mode.id
-        if partner and partner.property_payment_term:
-            res['value']['payment_term_id'] = partner.property_payment_term.id
-        if partner and partner.fiscal_position_id:
-            res['value']['fiscal_position_id'] = partner.property_account_position_id.id
-        return res
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        if self.partner_id and self.partner_id.payment_mode_id:
+            self.payment_mode_id = self.partner_id.payment_mode_id.id
+        if self.partner_id and self.partner_id.property_payment_term_id:
+            self.payment_term_id = self.partner_id.property_payment_term_id.id
+        if self.partner_id and self.partner_id.property_account_position_id:
+            self.fiscal_position_id = self.partner_id.property_account_position_id.id
+        if self.partner_id:
+            if self.partner_id.legal_name:
+                self.name = self.partner_id.legal_name
+            else:
+                self.name = self.partner_id.name
 
     @api.model
     def _prepare_invoice(self):

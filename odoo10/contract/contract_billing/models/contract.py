@@ -122,9 +122,10 @@ class AccountAnalyticAccount(models.Model):
             msg_erro = msg_erro + 'Contrato sem cliente definido; '
         else:
             cli = contrato.partner_id
+            cli_name = cli.legal_name or cli.name
             # dados necessario para gerar o boleto
             if not cli.cnpj_cpf \
-                    or not cli.legal_name \
+                    or not cli_name \
                     or not cli.zip \
                     or not cli.street \
                     or not cli.number \
@@ -239,6 +240,7 @@ class AccountAnalyticAccount(models.Model):
                 'NAO', self.company_id.name)
             return invoice, msg_erro
         except Exception:
+            self.env.cr.rollback()
             return False, msg_erro
 
     @api.multi
@@ -247,6 +249,10 @@ class AccountAnalyticAccount(models.Model):
         email_line = {}
         email_rel = {}
         for contract in self:
+            if not contract.active:
+                continue
+            if not contract.partner_id.active:
+                continue
             context['cliente'] = contract.partner_id
             context['contrato'] = contract
             context['empresa'] = contract.company_id
@@ -280,6 +286,7 @@ class AccountAnalyticAccount(models.Model):
                 contract.write({
                     'recurring_next_date': new_date.strftime('%Y-%m-%d')
                 })
+                self.env.cr.commit()
             else:
                 msg = 'Erro no faturamento,  ' + msg
                 contract.message_post(body=_(msg))
@@ -300,7 +307,8 @@ class AccountAnalyticAccount(models.Model):
         contracts = self.search(
             [('recurring_next_date', '<=', fields.date.today()),
              ('recurring_invoices', '=', True),
-             ('company_id','=',company)])
+             ('company_id','=',company),
+             ('active','=',True)])
         return contracts.recurring_create_invoice()
 
     def _prepare_order_lines(self, contract, order_id):

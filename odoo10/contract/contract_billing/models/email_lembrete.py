@@ -48,7 +48,6 @@ class EmailEinvoice(models.Model):
 
     def cron_send_einvoice(self, dias_vencimento=13):
         remind = {}
-        import pudb;pu.db
         invoice_obj = self.env['account.invoice']
         dia_vencimento = (datetime.now() + timedelta(dias_vencimento)).strftime("%Y-%m-%d")
         #dia_vencimento = '2017-03-06'
