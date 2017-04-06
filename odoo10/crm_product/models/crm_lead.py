@@ -86,11 +86,15 @@ class CrmLead(models.Model):
 
         if 'email_from' in vals:
             crm_obj = self.env['crm.lead']
-            crm_ids = crm_obj.search([('email_from', '=', vals.get('email_from'))])
+            email_from = vals.get('email_from')
+            crm_ids = crm_obj.search([
+                ('email_from', 'ilike', email_from.strip()),
+                ('type', '=', 'opportunity')
+            ])
             for lead in crm_ids:
                 stage_id_lost = lead._stage_find(domain=[('probability', '=', 0.0), ('on_change', '=', True), ('sequence', '>', 1)])
                 stage_id_won = lead._stage_find(domain=[('probability', '=', 100.0), ('on_change', '=', True)])
-                if not lead.stage_id.id in (stage_id_lost, stage_id_won):
+                if not lead.stage_id.id in (stage_id_lost.id, stage_id_won.id):
                     raise UserError(_(u'Oportunidade duplicada\nJá existe uma oportunidade com este email!'))
         if 'name' in vals:
             if not 'productsite_id' in vals:
@@ -112,7 +116,18 @@ class CrmLead(models.Model):
 
     @api.multi
     def write(self,vals):
-        #import pudb;pu.db
+        if 'email_from' in vals:
+            crm_obj = self.env['crm.lead']
+            email_from = vals.get('email_from')
+            crm_ids = crm_obj.search([
+                ('email_from', 'ilike', email_from.strip()),
+                ('type', '=', 'opportunity')
+            ])
+            for lead in crm_ids:
+                stage_id_lost = lead._stage_find(domain=[('probability', '=', 0.0), ('on_change', '=', True), ('sequence', '>', 1)])
+                stage_id_won = lead._stage_find(domain=[('probability', '=', 100.0), ('on_change', '=', True)])
+                if not lead.stage_id.id in (stage_id_lost.id, stage_id_won.id):
+                    raise UserError(_(u'Oportunidade duplicada\nJá existe uma oportunidade com este email!'))
         # stage change: update date_last_stage_update
         partner_obj = self.env['res.partner']
         for lead in self.browse(self.id):
