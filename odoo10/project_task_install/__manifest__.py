@@ -24,10 +24,12 @@
         'project',
         'hr_timesheet',
         'project_task_work',
+        'br_sale'
     ],
     'data': [
         'data/task_sequence.xml',
         'views/project_view.xml',
+        'views/sale_views.xml',
     ],
     'installable': True,
 }
