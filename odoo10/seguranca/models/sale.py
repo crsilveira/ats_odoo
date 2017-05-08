@@ -6,36 +6,20 @@ from odoo.addons import decimal_precision as dp
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    @api.multi
+    def _prepare_invoice(self):
+        res = super(SaleOrder, self)._prepare_invoice()
+        if self.invoice_type:
+            res['invoice_type'] = self.invoice_type.id
+        if self.divisao:
+            res['divisao'] = self.divisao.id
+        return res
     # CRIAR CONTRATO AO CRIAR A NOTA FISCAL
-    """
-    @api.model
-    def _prepare_invoice(self, order, lines):
-        result = super(SaleOrder, self)._prepare_invoice(order, lines)
-
-        # criar o CONTRATO
-
-        contract_id = env['account.analytic.account'].create({
-            'name': order.partner_id.name,
-            'partner_id': order.partner_id,
-            'manager_id': order.user_id.id,
-            'company_id': order.company_id.id,
-            'code': order.id,
-            'payment_mode_id': order.payment_mode_id.id,
-            'payment_term_id': order.payment_term_id.id,
-            'date_start': order.date_start,
-            'recurring_interval': order.interval,
-            'recurring_invoices': True,
-            'recurring_next_date': order.date_next_invoice,
-            'recurring_invoice_line_ids': lines,
-            })
-        return result
-    """
 
     @api.multi
     @api.depends('order_line_serv.price_unit', 'order_line_serv.product_uom_qty')
     def _compute_service_total(self):
         total = 0.0
-
         for order in self:
             for line in order.order_line_serv:
                 total += line.price_unit*line.product_uom_qty
@@ -43,7 +27,32 @@ class SaleOrder(models.Model):
     
     order_line_serv = fields.One2many('sale.order.line.serv', 'order_serv_id', 'Order Lines', readonly=True, states={'draft': [('readonly',      False)], 'sent': [('readonly', False)]}, copy=True)
     service_total = fields.Float(compute='_compute_service_total', digits=dp.get_precision('Account'), readonly=True, store=True)
-    #service_total = fields.Float(string="Total Servicos")
+    invoice_type = fields.Many2one('account.invoice.type', string='Tipo do faturamento', index=True)
+    divisao = fields.Many2one('company.type', string="Divisão", index=True)
+    #service_total = fields.Float(digits=dp.get_precision('Account'), readonly=True)
+
+
+    @api.depends('order_line.price_total', 'order_line.valor_desconto')
+    def _amount_all(self):
+        """
+        Compute the total amounts of the SO.
+        """
+
+        for order in self:
+            amount_untaxed = amount_tax = 0.0
+            for line in order.order_line:
+                amount_untaxed += line.price_subtotal
+                if order.company_id.tax_calculation_rounding_method == 'round_globally':
+                    price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+                    taxes = line.tax_id.compute_all(price, line.order_id.currency_id, line.product_uom_qty, product=line.product_id, partner=line.order_id.partner_id)
+                    amount_tax += sum(t.get('amount', 0.0) for t in taxes.get('taxes', []))
+                else:
+                    amount_tax += line.price_tax
+            order.update({
+                'amount_total': amount_untaxed + amount_tax + self.service_total,
+                'total_bruto': sum(l.valor_bruto
+                                   for l in order.order_line) + self.service_total,
+            })
 
 class SaleOrderLineServ(models.Model):
 
