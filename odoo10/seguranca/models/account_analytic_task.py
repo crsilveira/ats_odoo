@@ -14,6 +14,7 @@ class AccountAnalyticTaskLine(models.Model):
 class AccountAnalyticAccount(models.Model):
     _inherit = 'account.analytic.account'
 
+    divisao = fields.Many2one('company.type', string="Divisão", index=True)
     recurring_task_line_ids = fields.One2many('account.analytic.task.line', 'analytic_task_id', 'Linha de Tarefas', copy=True)
     recurring_task = fields.Boolean('Gerar tarefas recorrentes automaticamente')
     recurring_task_rule_type = fields.Selection([
@@ -24,6 +25,10 @@ class AccountAnalyticAccount(models.Model):
             ], 'Recorrencia', help='Cria tarefas automaticamente, em intervalos programados')
     recurring_task_interval = fields.Integer('Repetir cada', help="Repetir cada (Dia/Semana/Mes/Ano)")
     recurring_task_next_date = fields.Date('Data da proxima Tarefa')
+
+    invoice_type = fields.Many2one('account.invoice.type', string='Tipo do faturamento', index=True)
+
+
 
     # Parei aqui a mudança para o odoo 10 25/11/16
     def onchange_recurring_tasks(self, cr, uid, ids, recurring_task, date_start=False, context=None):
@@ -82,3 +87,13 @@ class AccountAnalyticAccount(models.Model):
                         else:
                             raise
         return task_ids
+
+
+class AccountInvoiceType(models.Model):
+    _name = 'account.invoice.type'
+    _description = "Invoice type"
+
+    name = fields.Char('Nome')
+    code = fields.Integer(string='Código')
+
+
