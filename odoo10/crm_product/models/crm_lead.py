@@ -15,6 +15,7 @@ class CrmLead(models.Model):
         ('F','Fone'), 
         ('S','Site'), 
         ('W','Whatsapp'),
+        ('I', 'Indicacao'),
         ('O','Outros')],
         'Origem Lead', select=True, required=True)
     pref_contato= fields.Selection([
@@ -178,48 +179,105 @@ class CrmLead(models.Model):
 
 
     """
-    @api.model
-    def gerar_tarefas(self, partner_name, usr_id):        
-        user_id = self.env['hr.employee'].search([('department_id', '=', 'Cadastro')])
-        if user_id:
-           task = 'Cadastrar - %s' %(partner_name)
-           self.env['project.task'].sudo().create({
-               'name': task, 
-               'user_id': user_id[0].user_id.id, 
-               'project_id': 1,
-               'description': 'Verificar todas as informações, e criar o contrato'
-           })
-        
-        user_id = self.env['hr.employee'].search([('department_id', '=', 'Atendimento')])
-        if user_id:
-           task = 'Atendimento - %s' %(partner_name)            
-           self.env['project.task'].sudo().create({
-               'name': task, 
-               'user_id': user_id[0].user_id.id,
-               'project_id': 1,
-               'description': 'Cadastrar dados necessários para o Atendimento.'
-           })
-           
-        user_id = self.env['hr.employee'].search([('department_id', '=', 'Financeiro')])
-        if user_id:
-           task = 'Conferir Cadastro - %s' %(partner_name)
-           self.env['project.task'].sudo().create({
-              'name': task, 
-              'user_id': user_id[0].user_id.id,
-              'project_id': 1,
-              'description': 'Conferir campos obrigatórios para gerar o faturamento'
-           })
-           
-        user_id = self.env['hr.employee'].search([('department_id', '=', 'Telefonia')])
-        if user_id:
-           task = 'Telefonia - %s' %(partner_name) 
-           self.env['project.task'].sudo().create({
-               'name': task, 
-               'user_id': user_id[0].user_id.id,
-               'project_id': 1, 
-               'description': 'Ativar telefone e ramais para o cliente novo !'
-           })
+
+
     """
+
+
+    @api.model
+    def gerar_tarefas(self, partner_id, company_id):
+        project_id = self.env['project.project'].search([('name','=','Cadastro'),('partner_id.company_id','=',company_id)])
+        if project_id:
+            task = 'Cadastrar - %s' % (partner_id.name)
+            self.env['project.task'].sudo().create({
+                'name': task,
+                'user_id': False,
+                'project_id': project_id.id,
+                'description': 'Verificar todas as informações, e criar o contrato',
+                'partner_id' : partner_id.id
+            })
+        else:
+            project_id = self.env['project.project'].search([('name', '=', 'Cadastro'),('partner_id','=',False)])
+            #for seguidor in project.message_follower_ids:
+            if project_id:
+                task = 'Cadastrar - %s' %(partner_id.name)
+                self.env['project.task'].sudo().create({
+                    'name': task,
+                    'user_id': False,
+                    'project_id': project_id.id,
+                    'description': 'Verificar todas as informações, e criar o contrato',
+                    'partner_id' : partner_id.id,
+                    'company_id' : False
+                })
+        project_id = self.env['project.project'].search([('name', '=', 'Atendimento'),('partner_id.company_id','=',company_id)])
+        if project_id:
+            task = 'Atendimento - %s' % (partner_id.name)
+            self.env['project.task'].sudo().create({
+                'name': task,
+                'user_id': False,
+                'project_id': project_id.id,
+                'description': 'Cadastrar dados necessários para o Atendimento.',
+                'partner_id' : partner_id.id
+            })
+        else:
+            project_id = self.env['project.project'].search([('name', '=', 'Atendimento'),('partner_id','=',False)])
+            if project_id:
+               task = 'Atendimento - %s' %(partner_id.name)
+               self.env['project.task'].sudo().create({
+                   'name': task,
+                   'user_id': False,
+                   'project_id': project_id.id,
+                   'description': 'Cadastrar dados necessários para o Atendimento.',
+                   'partner_id' : partner_id.id,
+                   'company_id' : False
+               })
+
+        project_id = self.env['project.project'].search([('name', '=', 'Financeiro'),('partner_id.company_id','=',company_id)])
+        if project_id:
+            task = 'Conferir Cadastro - %s' % (partner_id.name)
+            self.env['project.task'].sudo().create({
+                'name': task,
+                'user_id': False,
+                'project_id': project_id.id,
+                'description': 'Conferir campos obrigatórios para gerar o faturamento',
+                'partner_id' : partner_id.id
+            })
+        else:
+            project_id = self.env['project.project'].search([('name', '=', 'Financeiro'),('partner_id','=',False)])
+            if project_id:
+               task = 'Conferir Cadastro - %s' %(partner_id.name)
+               self.env['project.task'].sudo().create({
+                  'name': task,
+                  'user_id': False,
+                  'project_id': project_id.id,
+                  'description': 'Conferir campos obrigatórios para gerar o faturamento',
+                  'partner_id' : partner_id.id,
+                  'company_id' : False
+               })
+
+        project_id = self.env['project.project'].search([('name', '=', 'Telefonia'),('partner_id.company_id','=',company_id)])
+        if project_id:
+            task = 'Telefonia - %s' % (partner_id.name)
+            self.env['project.task'].sudo().create({
+                'name': task,
+                'user_id': False,
+                'project_id': project_id.id,
+                'description': 'Ativar telefone e ramais para o cliente novo !',
+                'partner_id' : partner_id.id
+            })
+        else:
+            project_id = self.env['project.project'].search([('name', '=', 'Telefonia'),('partner_id','=',False)])
+            if project_id:
+               task = 'Telefonia - %s' %(partner_id.name)
+               self.env['project.task'].sudo().create({
+                   'name': task,
+                   'user_id': False,
+                   'project_id': project_id.id,
+                   'description': 'Ativar telefone e ramais para o cliente novo !',
+                   'partner_id' : partner_id.id,
+                   'company_id' : False
+               })
+
 
     def envia_boas_vindas_email(self):
         ir_model_data = self.env['ir.model.data']
@@ -242,88 +300,7 @@ class CrmLead(models.Model):
             stage_id = lead._stage_find(domain=[('probability', '=', 100.0), ('on_change', '=', True)])
             lead.write({'stage_id': stage_id.id, 'probability': 100})
             self.envia_boas_vindas_email()
+            self.gerar_tarefas(lead.partner_id,lead.company_id.id)
         return True
 
-
-    """
-    def case_mark_won(self, cr, uid, ids, context=None):
-        partner_obj = self.pool.get('res.partner')
-
-        # A partner is set already
-            # Search through the existing partners based on the lead's email
-         Mark the case as won: state=done and probability=100
-        stages_leads = {}
-        lead_id = 0
-        for lead in self.browse(cr, uid, ids, context=context):
-            lead_id = lead.id
-            erro = ''
-            if not lead.legal_name:
-                erro = u'Razão Social(Nome que saira no Contrato.)\n'
-            if lead.is_company and not lead.cnpj:
-                erro = erro + u'CNPJ do cliente.\n'
-            if not lead.is_company and not lead.cpf:
-                erro = erro + u'CPF do cliente.\n'
-            #if not lead.inscr_est and not lead.rg:
-            #    erro = erro + u'Inscrição Estadual ou RG.\n'
-            if not lead.l10n_br_city_id:
-                erro = erro + u'Faltando municipio.\n'
-            if not lead.district:
-                erro = erro + u'Faltando Bairro.\n'
-            if not lead.street:
-                erro = erro + u'Faltando Localizacao.\n'
-            if not lead.number:
-                erro = erro + u'Faltando Numero no endereco.\n'
-            if not lead.zip:
-                erro = erro + u'Faltando CEP.\n'
-
-            if erro != '':
-                raise except_orm(
-                               _(u'Dados incompletos!'),
-                               _(u'%s') % (erro))
-            partner_id = 0
-            if lead.email_from:
-                partner_ids = partner_obj.search(cr, uid, [('email', '=', lead.email_from)], context=context)
-                if partner_ids:
-                    partner_id = partner_ids[0]
-            elif lead.cnpj:
-                partner_ids = partner_obj.search(cr, uid, [('cnpj_cpf', '=', lead.cnpj)], context=context)
-                if partner_ids:
-                    partner_id = partner_ids[0]
-            elif lead.cpf:
-                partner_ids = partner_obj.search(cr, uid, [('cnpj_cpf', '=', lead.cpf)], context=context)
-                if partner_ids:
-                    partner_id = partner_ids[0]
-            # Search through the existing partners based on the lead's partner or contact name
-            elif lead.partner_name:
-                partner_ids = partner_obj.search(cr, uid, [('name', 'ilike', '%'+lead.partner_name+'%')], context=context)
-                if partner_ids:
-                    partner_id = partner_ids[0]
-            elif lead.contact_name:
-                partner_ids = partner_obj.search(cr, uid, [
-                        ('name', 'ilike', '%'+lead.contact_name+'%')], context=context)
-                if partner_ids:
-                    partner_id = partner_ids[0]
-            if partner_id == 0:
-                partner_id = self._create_lead_partner(cr, uid, lead, context)
-
-            stage_id = self.stage_find(cr, uid, [lead], lead.section_id.id or False, [('probability', '=', 100.0), ('on_change', '=', True)], context=context)
-            if stage_id:
-                if stages_leads.get(stage_id):
-                    stages_leads[stage_id].append(lead.id)
-                else:
-                    stages_leads[stage_id] = [lead.id]
-            else:
-                raise except_orm(
-                                _('Warning!'),
-                                _('To relieve your sales pipe and group all Won opportunities, configure one of your sales stage as follow:\n'
-                                  'probability = 100 % and select "Change Probability Automatically".\n'
-                                  'Create a specific stage or edit an existing one by editing columns of your opportunity pipe.'))
-        
-        for stage_id, lead_ids in stages_leads.items():
-            self.write(cr, uid, lead_ids, {'stage_id': stage_id, 'partner_id': partner_id}, context=context)
-            # criar as tarefas
-            self.gerar_tarefas(cr, uid, lead.partner_name, lead.user_id, context=context)
-            self.envia_boas_vindas_email(cr, uid, lead_id, context=context)
-        return True
-     """
 

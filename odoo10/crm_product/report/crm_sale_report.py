@@ -91,6 +91,7 @@ class SaleReport(models.Model):
                        WHEN 'E' THEN 'Email'
                        WHEN 'F' THEN 'Fone'
                        WHEN 'S' THEN 'Site'
+                       WHEN 'I' THEN 'Indicacao'
                        WHEN 'W' THEN 'Whatsapp'
                        ELSE 'Outros' END as origem_lead,
                     CASE c.pref_contato WHEN 'C' THEN 'Chat'
