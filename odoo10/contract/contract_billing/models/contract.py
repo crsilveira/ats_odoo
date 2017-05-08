@@ -2,6 +2,7 @@
 from odoo import api, fields, models, _
 import time
 
+
 from odoo.addons.br_boleto.boleto.document import Boleto
 
 class AccountAnalyticAccount(models.Model):
@@ -116,33 +117,62 @@ class AccountAnalyticAccount(models.Model):
         if not journal_ids:
             msg_inc.append({'cadastro': 'Sem Diário : %s' %(empresa.name)})
             msg_erro = 'Defina um diario para a empresa; %s.' %(empresa.name)
+
+        if not empresa.partner_id.legal_name:
+            msg_erro += u'Empresa - Razão Social\n'
+        if not empresa.cnpj_cpf:
+            msg_erro += u'Empresa - CNPJ\n'
+        if not empresa.district:
+            msg_erro += u'Empresa - Bairro\n'
+        if not empresa.zip:
+            msg_erro += u'Empresa - CEP\n'
+        if not empresa.city_id.name:
+            msg_erro += u'Empresa - Cidade\n'
+        if not empresa.street:
+            msg_erro += u'Empresa - Logradouro\n'
+        if not empresa.number:
+            msg_erro += u'Empresa - Número\n'
+        if not empresa.state_id.code:
+            msg_erro += u'Empresa - Estado\n'
+
         # valida contrato (cliente, empresa, unidade, produto)
         if not contrato.partner_id:
             msg_inc.append({'cadastro': 'Contrato %s sem cliente definido.' % (contrato.name)})
             msg_erro = msg_erro + 'Contrato sem cliente definido; '
         else:
             cli = contrato.partner_id
-            cli_name = cli.legal_name or cli.name
-            # dados necessario para gerar o boleto
-            if not cli.cnpj_cpf \
-                    or not cli_name \
-                    or not cli.zip \
-                    or not cli.street \
-                    or not cli.number \
-                    or not cli.city_id \
-                    or not cli.district \
-                    or not cli.state_id \
-                    or not cli.country_id:
-                msg_erro = msg_erro + u'Falta CNPJ/CPF, Contratante, Endereco completo; '
+
+            if not cli.name:
+                msg_erro += u'Cliente - Nome\n'
+            if cli.is_company and \
+                    not cli.legal_name:
+                msg_erro += u'Cliente - Razão Social\n'
+            if not cli.cnpj_cpf:
+                msg_erro += u'Cliente - CNPJ/CPF \n'
+            if not cli.district:
+                msg_erro += u'Cliente - Bairro\n'
+            if not cli.zip:
+                msg_erro += u'Cliente - CEP\n'
+            if not cli.city_id.name:
+                msg_erro += u'Cliente - Cidade\n'
+            if not cli.street:
+                msg_erro += u'Cliente - Logradouro\n'
+            if not cli.number:
+                msg_erro += u'Cliente - Número\n'
+            if not cli.state_id.code:
+                msg_erro += u'Cliente - Estado\n'
+
             if not contrato.payment_term_id and not cli.property_payment_term_id:
                 msg_erro = msg_erro + u'Falta Condicoes de Pagamento do Cliente; '
             if not contrato.payment_mode_id and not cli.payment_mode_id:
                 msg_erro = msg_erro + u'Falta Modo de Pagamento do Cliente; '
             if not contrato.fiscal_position_id and not cli.property_account_position_id:
                 msg_erro = msg_erro + u'Falta Posicao Fiscal; '
+            if not contrato.payment_mode_id.bank_account_id.codigo_convenio:
+                msg_erro += u'Código de Convênio\n'
 
-            if empresa.id != cli.company_id.id:
-                msg_erro = msg_erro + u'Empresa no contrato diferente do cadastro do cliente; '
+            #if empresa.id != cli.company_id.id:
+            #    msg_erro = msg_erro + u'Empresa no contrato diferente do cadastro do cliente; '
             if empresa.id != cli.property_account_receivable_id.company_id.id:
                 msg_erro = msg_erro +  u'Conta de Recebimento nao pertence a empresa do contrato; '
             #if empresa.id != cli.property_account_position_id.company_id.id:
@@ -259,14 +289,15 @@ class AccountAnalyticAccount(models.Model):
             context['id_contrato'] = contract.id
             valido = self.validando_info(context)
             if len(valido):
-                email_line = {'faturado':'NAO',
-                    'contrato': contract.code,
-                    'cliente': contract.partner_id.name,
-                    'ocorrencia': valido
-                }
+                #email_line = {'faturado':'NAO',
+                #    'contrato': contract.code,
+                #    'cliente': contract.partner_id.name,
+                #    'ocorrencia': valido
+                #}
                 email_dados = email_rel.setdefault(id,email_line)
                 email_dados.setdefault('NAO FATURADO', {})
-                contract.message_post(body=_(email_dados))
+                email_dados = 'Erro : %s' %(valido)
+                contract.message_post(body=_())
                 continue
 
             old_date = fields.Date.from_string(
