@@ -6,6 +6,9 @@ from odoo.exceptions import UserError, AccessError
 class CrmLead(models.Model):
     """ CRM Lead Case """
     _inherit = "crm.lead"
+
+    sent = fields.Boolean(string="Proposta enviada")
+
     productsite_id = fields.Many2one('crm.productsite', 'Produto', required=True)
     is_company = fields.Boolean('P. Juridica')
     mobile= fields.Char('Mobile')
@@ -88,8 +91,10 @@ class CrmLead(models.Model):
         if 'email_from' in vals:
             crm_obj = self.env['crm.lead']
             email_from = vals.get('email_from')
+            if email_from:
+                email_from = email_from.strip()
             crm_ids = crm_obj.search([
-                ('email_from', 'ilike', email_from.strip()),
+                ('email_from', 'ilike', email_from),
                 ('type', '=', 'opportunity')
             ])
             for lead in crm_ids:
@@ -120,8 +125,10 @@ class CrmLead(models.Model):
         if 'email_from' in vals:
             crm_obj = self.env['crm.lead']
             email_from = vals.get('email_from')
+            if email_from:
+                email_from = email_from.strip()
             crm_ids = crm_obj.search([
-                ('email_from', 'ilike', email_from.strip()),
+                ('email_from', 'ilike', email_from),
                 ('type', '=', 'opportunity')
             ])
             for lead in crm_ids:
