@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
+import odoo.addons.decimal_precision as dp
 
 class AccountAnalyticAccount(models.Model):
     _inherit = "account.analytic.account"
+
+    @api.one
+    @api.depends('recurring_invoice_line_ids.price_unit',
+                 'recurring_invoice_line_ids.quantity')
+    def _total_contrato(self):
+        lines = self.recurring_invoice_line_ids
+        self.valor_total = sum((l.price_unit*l.quantity) for l in lines)
+
+    valor_total = fields.Float(
+        string='Valor Total', readonly=True, compute='_total_contrato',
+        digits=dp.get_precision('Account'), store=True)
 
     @api.model
     def create(self, vals):

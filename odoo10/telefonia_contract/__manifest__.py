@@ -30,7 +30,9 @@
     'author': 'ATS Soluções',
     'website': '',
     'depends': ['contract'],
-    'data': [],
+    'data': [
+        'views/contract_view.xml',
+    ],
     'installable': True,
     'application': False,
 }
