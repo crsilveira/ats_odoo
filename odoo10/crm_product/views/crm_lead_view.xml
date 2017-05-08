@@ -239,14 +239,25 @@
 			</field>
 		</record>
 
-        <record id="create_opportunity_complete" model="ir.actions.act_window">
-            <field name="name">Create an Opportunity</field>
-            <field name="res_model">crm.lead</field>
-            <field name="inherit_id" ref="crm.create_opportunity_simplified" />
-            <field name="view_id" ref="crm.crm_case_form_view_leads"/>
-            <field name="target">new</field>
+
+        <record model="ir.ui.view" id="prod_crm_lead_view_tree_activity">
+            <field name="name">Myplace Opportunities Tree</field>
+            <field name="model">crm.lead</field>
+			<field name="inherit_id" ref="crm.crm_lead_view_tree_activity" />
+            <field name="arch" type="xml">
+                    <field name="partner_id" position="replace">
+                        <field name="partner_name" />
+                    </field>
+            </field>
         </record>
 
+        <record id="prod_create_opportunity_simplified" model="ir.actions.act_window">
+            <field name="name">Criar uma Oportunidade</field>
+            <field name="res_model">crm.lead</field>
+            <field name="inherit_id" ref="crm.create_opportunity_simplified" />
+            <field name="view_id" ref="crm_case_form_view_leads"/>
+            <field name="target">current</field>
+        </record>
 
     </data>
 </openerp>
