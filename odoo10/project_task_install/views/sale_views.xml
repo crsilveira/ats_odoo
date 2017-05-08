@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+     <record id="view_sale_form" model="ir.ui.view">
+        <field name="name">view.sale..form</field>
+        <field name="model">sale.order</field>
+         <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <group name="sale_pay" position="after">
+                <group name="os_description" string="Mensagens">
+                    <field name="os_descr" />
+                    <field name="msg_financeiro" />
+                </group>
+            </group>
+        </field>
+     </record>
+</odoo>
