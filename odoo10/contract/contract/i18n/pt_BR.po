@@ -58,7 +58,7 @@ msgstr "Contratos"
 #. module: contract
 #: model:ir.ui.view,arch_db:contract.account_analytic_account_recurring_form_form
 msgid "Create invoices"
-msgstr "Crair Fatura"
+msgstr "Criar Fatura"
 
 #. module: contract
 #: model:ir.model.fields,field_description:contract.field_account_analytic_invoice_line_create_uid
