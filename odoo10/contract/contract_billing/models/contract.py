@@ -289,15 +289,15 @@ class AccountAnalyticAccount(models.Model):
             context['id_contrato'] = contract.id
             valido = self.validando_info(context)
             if len(valido):
-                #email_line = {'faturado':'NAO',
-                #    'contrato': contract.code,
-                #    'cliente': contract.partner_id.name,
-                #    'ocorrencia': valido
-                #}
-                email_dados = email_rel.setdefault(id,email_line)
+                email_line = {'faturado':'NAO',
+                    'contrato': contract.code,
+                    'cliente': contract.partner_id.name,
+                    'ocorrencia': valido
+                }
+                email_dados = email_rel.setdefault(contract.id,email_line)
                 email_dados.setdefault('NAO FATURADO', {})
                 email_dados = 'Erro : %s' %(valido)
-                contract.message_post(body=_())
+                contract.message_post(body=_(email_dados))
                 continue
 
             old_date = fields.Date.from_string(
@@ -329,8 +329,28 @@ class AccountAnalyticAccount(models.Model):
                 template_id = ir_model_data.get_object_reference('contract_billing', 'email_erro_fatura')[1]
             except ValueError:
                 template_id = False
-            context['data'] = email_rel
-            #self.env['mail.template'].browse(template_id).send_mail(contract.id, force_send=True)
+
+            tbl = '<table> \
+                    <tr><th>Empresa X</th></tr> \
+                    <tr>\
+                    <th>Contrato</th> \
+                    <th>Cliente</th> \
+                    <th>Situacao</th> \
+                    <th>Observacao</th></tr>'
+            """
+            for x in email_rel.items():
+                tbl += '<tr>'
+                tbl += '<td>%s</td>' %(x[1]['contrato'])
+                tbl += '<td>%s</td>' %(x[1]['cliente'])
+                tbl += '<td>%s</td>' %(x[1]['faturado'])
+                tbl += '<td>%s</td>' %(x[1]['ocorrencia'])
+                tbl += '</tr>'
+            tbl += '</table>'
+
+            """
+            context['data'] = email_rel.items()
+            self.env['mail.template'].browse(template_id).with_context(context).send_mail(contract.id, force_send=True)
+            return False
         return True
 
     @api.model
