@@ -1,5 +1,5 @@
 #  -*- encoding: utf-8 -*-
-from odoo import models, fields, api, _
+from odoo import models, fields, api, _, tools
 from odoo.exceptions import UserError, AccessError
 
 
@@ -20,14 +20,14 @@ class CrmLead(models.Model):
         ('W','Whatsapp'),
         ('I', 'Indicacao'),
         ('O','Outros')],
-        'Origem Lead', select=True, required=True)
+        'Origem Lead', index=True, required=True)
     pref_contato= fields.Selection([
         ('C','Chat'), 
         ('E','Email'),
         ('F','Telefone'), 
         ('W','Whatsapp'),
         ('O','Outros')],
-        'Preferência Contato', select=True, required=True)
+        'Preferência Contato', index=True, required=True)
 
     _defaults = {
         'country_id': 32,
@@ -48,21 +48,33 @@ class CrmLead(models.Model):
         #vals['origem_lead'] = 'Fone/Outros'
         if 'user_id' in vals:
             vend_obj = self.env['hr.employee']
-            user_id = vend_obj.search([('job_id', '=', 'Vendedor'),('user_id','=', vals.get('user_id'))])
+            user_id = vend_obj.search([
+                ('job_id', '=', 'Vendedor'),
+                ('user_id','=', vals.get('user_id'))
+            ]).user_id.id
 
-            if not len(user_id):
+            if not user_id:
                user_id = self._uid
                vals['user_id'] = self._uid
+        # pegando as unidades, q nao distribui leads para SP
+        un_obj = self.env['res.company']
+        un_ids = un_obj.search([('partner_id.suframa', '!=', False)])
+        lista_un = []
+        for x in un_ids:
+            if x.suframa:
+                lista_un.append(x.id)
+
 
         ####  USUARIO TRAVADO MESMO DO SCRIPT SITE
         if user_id == 19 and 'company_id' in vals:
             vals['origem_lead'] = 'S'
-            if vals.get('company_id') not in ('16','17','18'):
+            cp_id = vals.get('company_id')
+            if int(cp_id) not in lista_un:
                 hr_obj = self.env['hr.employee']
                 hr_ids = hr_obj.search([('job_id', '=', 'Vendedor')])
                 crm_ids = self.env["crm.lead"]
                 search_ids = crm_ids.search([
-                    ('company_id','not in',['Florianopolis','Curitiba','Rio de Janeiro'])
+                    ('company_id','not in',lista_un)
                     , ('origem_lead','=', ['S'])])
                 last_id = search_ids and max(search_ids)
                 #crm_id = crm_ids.browse([last_id])
@@ -184,6 +196,21 @@ class CrmLead(models.Model):
         if self.productsite_id:
             self.name = self.productsite_id.name
 
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        if self.partner_id:
+            self.partner_name = self.partner_id.name
+            self.is_company = self.partner_id.is_company
+            self.phone = self.partner_id.phone
+            self.mobile = self.partner_id.mobile
+            self.email_from = self.partner_id.email
+            self.street = self.partner_id.street
+            self.street2 = self.partner_id.street2
+            self.state_id = self.partner_id.state_id
+            self.country_id = self.partner_id.country_id
+            self.zip = self.partner_id.zip
+        return super(CrmLead, self)._onchange_partner_id()
+
 
     """
 
@@ -294,6 +321,33 @@ class CrmLead(models.Model):
         except ValueError:
             template_id = False
 
+    @api.multi
+    def _lead_create_contact(self, name, is_company, parent_id=False):
+        email_split = tools.email_split(self.email_from)
+        values = {
+            'name': name,
+            'user_id': self.user_id.id,
+            'comment': self.description,
+            'team_id': self.team_id.id,
+            'parent_id': parent_id,
+            'phone': self.phone,
+            'mobile': self.mobile,
+            'email': email_split[0] if email_split else False,
+            'fax': self.fax,
+            'title': self.title.id,
+            'function': self.function,
+            'street': self.street,
+            'street2': self.street2,
+            'zip': self.zip,
+            'city': self.city,
+            'country_id': self.country_id.id,
+            'state_id': self.state_id.id,
+            'is_company': is_company,
+            'company_id': self.company_id.id,
+            'legal_name': self.legal_name,
+            'type': 'contact'
+        }
+        return self.env['res.partner'].create(values)
 
     @api.multi
     def action_set_won(self):
