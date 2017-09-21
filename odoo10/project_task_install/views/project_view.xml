@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <record id="view_project_kanban_install" model="ir.ui.view">
+        <field name="name">project_kanban_install</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban" />
+        <field name="arch" type="xml">
+			<field name="user_id" position="after">
+				<field name="partner_id"/>
+					</field>
+            <xpath expr="//div[@class='o_primary']" position="inside">
+                <span><t t-esc="record.partner_id.value"/></span>
+            </xpath>
+        </field>
+    </record>
     <!-- Task -->
     <record id="view_task_i_search_form" model="ir.ui.view">
         <field name="name">project.task.i.search.form</field>
@@ -11,7 +24,7 @@
                 <field name="partner_id"/>
                 <field name="project_id"/>
                 <field name="user_id"/>
-                <field name="stage_id"/>
+                <field name="stage_id" readonly="1"/>
                 <filter string="My Tasks" name="my_tasks" domain="[('user_id','=',uid)]"/>
                 <filter string="Unassigned" name="unassigned" domain="[('user_id', '=', False)]"/>
                 <separator/>
@@ -40,7 +53,10 @@
         <field name="arch" type="xml">
             <form string="Task" class="o_form_project_tasks">
                 <header>
-                    <field name="stage_id" widget="statusbar" clickable="True"
+                    <button name="create_sale_order" type="object" string="Criar cobrança"/>
+                    <button name="previous_stage" type="object" string="Estágio Anterior" attrs="{'invisible':[('stage_id','=',6)]}"/>
+                    <button name="next_stage" type="object" string="Próximo Estágio" attrs="{'invisible':[('stage_id','=',8)]}"/>
+                    <field name="stage_id" widget="statusbar" readonly="1"
                            options="{'fold_field': 'fold'}"/>
                 </header>
                 <sheet string="Task">
@@ -55,13 +71,15 @@
                     <div class="oe_title">
                         <h1 class="o_row">
                             <field name="priority" widget="priority"/>
-                            <field name="name" placeholder="Task Title..."/>
+                            <field name="name" />
                         </h1>
                     </div>
                     <group>
                         <group>
+                            <field name="code" invisible="1"/>
                             <field name="partner_id"/>
-                            <field name="project_id" domain="[('active', '=', True)]" context="{'default_use_tasks':1}"/>
+                            <field name="vendor_id"/>
+                            <field name="project_id" domain="[('active', '=', True),('partner_id','=','partner_id')]" context="{'default_use_tasks':1}"/>
                             <field name="user_id"
                                    class="o_task_user_field"
                                    options='{"no_open": True}'/>
@@ -74,7 +92,8 @@
                             <field name="date_deadline"/>
                             <field name="tag_ids" widget="many2many_tags" options="{'no_create_edit': True}"/>
                             <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
-
+                            <field name="status_bar" readonly="1"/>
+                            <button name="release_for_delivery" type="object" string="Liberar entrega" attrs="{'invisible':[('status_bar','!=','waiting')]}"/>
                         </group>
                     </group>
                     <notebook>
@@ -115,6 +134,7 @@
                             <field name="material_ids">
                                 <tree string="Materiais usados" editable="false">
                                     <field name="product_id" string="Produto"/>
+                                    <field name="stock" string="Estoque"/>
                                     <field name="quantity" string="Quantidade"/>
                                     <field name="price_unit" string="Preço"/>
                                     <field name="discount" string="Desconto"/>
@@ -127,10 +147,12 @@
                                 <group>
                                     <field name="sequence" groups="base.group_no_one"/>
                                     <field name="displayed_image_id" groups="base.group_no_one"/>
+                                    <field name="ref"/>
                                 </group>
                                 <group>
                                     <field name="date_assign" groups="base.group_no_one"/>
                                     <field name="date_last_stage_update" groups="base.group_no_one"/>
+                                    <field name="int_msg"/>
                                 </group>
                             </group>
                         </page>
@@ -154,6 +176,7 @@
                 <field name="priority"/>
                 <field name="stage_id" options='{"group_by_tooltip": {"description": "Stage Description", "legend_priority": "Use of stars"}}'/>
                 <field name="user_id"/>
+                <field name="partner_id"/>
                 <field name="user_email"/>
                 <field name="description"/>
                 <field name="sequence"/>
@@ -193,6 +216,9 @@
                                     <field name="project_id" invisible="context.get('default_project_id', False)"/>
                                     <t t-if="record.date_deadline.raw_value and record.date_deadline.raw_value lt (new Date())" t-set="red">oe_kanban_text_red</t>
                                     <span t-attf-class="#{red || ''}"><i><field name="date_deadline"/></i></span>
+                                </div>
+                                <div>
+                                    <strong><field name="partner_id"/></strong>
                                 </div>
                                 <div class="oe_kanban_bottom_left">
                                     <field name="priority" widget="priority"/>
@@ -253,7 +279,7 @@
         <field name="arch" type="xml">
             <pivot string="Project Tasks">
                 <field name="project_id" type="row"/>
-                <field name="stage_id" type="col"/>
+                <field name="stage_id" readonly="1" type="col"/>
             </pivot>
         </field>
     </record>
@@ -264,7 +290,7 @@
         <field name="arch" type="xml">
             <graph string="Project Tasks">
                 <field name="project_id"/>
-                <field name="stage_id"/>
+                <field name="stage_id" readonly="1"/>
             </graph>
         </field>
     </record>

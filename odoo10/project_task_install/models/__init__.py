@@ -18,3 +18,4 @@
 
 import project_task_install
 import sale
+import stock_picking

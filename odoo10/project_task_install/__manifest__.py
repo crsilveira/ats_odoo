@@ -24,12 +24,14 @@
         'project',
         'hr_timesheet',
         'project_task_work',
-        'br_sale'
+        'br_sale',
+        'seguranca'
     ],
     'data': [
         'data/task_sequence.xml',
         'views/project_view.xml',
         'views/sale_views.xml',
+        'views/stock_picking_view.xml',
     ],
     'installable': True,
 }
