@@ -160,7 +160,7 @@ class AccountAnalyticAccount(models.Model):
     @api.model
     def create(self, vals):
         if not vals.get('code'):
-            vals['code'] = self.env['ir.sequence'].get('contract.sequence.code')
+            vals['code'] = self.env['ir.sequence'].next_by_code('contract.sequence.code')
         return super(AccountAnalyticAccount, self).create(vals)
 
     @api.onchange('partner_id')
