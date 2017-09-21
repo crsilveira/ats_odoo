@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'Seguranca',
+    'name': 'Seguranca (Intersafe)',
     'version': '1.0',
     'category': 'Others',
     'sequence': 2,
@@ -29,15 +29,24 @@
     """,
     'author': 'ATS Soluções',
     'website': '',
-    'depends': ['br_sale','br_base','br_account_einvoice'],
+    'depends': [
+        'br_sale',
+        'base',
+        'br_account_einvoice',
+        'purchase',
+        'purchase_requisition',
+        'contract_billing'
+    ],
     'data': [
         #'account_analytic_analysis_view.xml',
-        #'res_partner_view.xml',
+        'views/res_partner_view.xml',
         'views/sale_view.xml',
         'views/invoice_type.xml',
         'views/contract_view.xml',
         'views/company_type.xml',
         'views/invoice_view.xml',
+        'views/purchase_view.xml',
+        'views/product_view.xml',
     ],
     'installable': True,
     'application': False,

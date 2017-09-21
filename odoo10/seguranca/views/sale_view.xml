@@ -6,21 +6,38 @@
 		<field name="model">sale.order</field>
 		<field name="inherit_id" ref="sale.view_order_form" />
 		<field name="arch" type="xml">
-			<xpath expr="/form/sheet/notebook" position="inside">
-				<page string="Cobranca Mensal">
+			<field name="payment_term_id" position="replace"></field>
+			<field name="partner_id" position="after">
+				<field name="divisao" options='{"no_create" : 1, "no_create_edit" : 1}'/>
+				<field name="payment_term_id"/>
+			</field>
+			<field name="pricelist_id" position="before">
+
+			</field>
+			<field name="pricelist_id" position="after">
+				<field name="valor_comodato"/>
+			</field>
+			<xpath expr="/form/sheet/notebook" position="inside"> 
+				<page string="Cobranca Mensal"> 
 					<field name="order_line_serv">
 						<tree string="Sales Order Lines Service" editable="bottom">
 							<field name="product_id"/>
 							<field name="product_uom_qty" invisible="1"/>
-                            <field name="product_uom" invisible="1"/>
+                                                        <field name="product_uom" invisible="1"/>
 							<field name="price_unit"/>
 						</tree>
 					</field>
+					<group string="Cobrança Mensal">
+						<field name="recurring_next_date"/>
+						<field name="ctr_payment_term_id"/>
+                        <field name="ctr_payment_mode_id"
+                            widget="selection"/>
+					</group>
 					<group class="oe_subtotal_footer oe_right" colspan="2" name="servico_total">
 						<field name="service_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field'      : 'currency_id'}"/>
 					</group>
 					<div class="oe_clear"/>
-				</page>
+                                 </page>
 			</xpath>
 		</field>
 	</record>

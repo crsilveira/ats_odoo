@@ -14,7 +14,12 @@ class AccountAnalyticTaskLine(models.Model):
 class AccountAnalyticAccount(models.Model):
     _inherit = 'account.analytic.account'
 
-    divisao = fields.Many2one('company.type', string="Divisão", index=True)
+    divisao = fields.Many2one(
+        'company.type', 
+        string="Divisão", 
+        index=True,
+        domain="[('company_id','=',company_id)]"
+    )
     recurring_task_line_ids = fields.One2many('account.analytic.task.line', 'analytic_task_id', 'Linha de Tarefas', copy=True)
     recurring_task = fields.Boolean('Gerar tarefas recorrentes automaticamente')
     recurring_task_rule_type = fields.Selection([
